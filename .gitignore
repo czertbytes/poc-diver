@@ -1,0 +1,8 @@
+build
+
+test_data
+
+tf/.terraform
+tf/.terraform.lock.hcl
+tf/terraform.tfstate
+tf/terraform.tfstate.backup
