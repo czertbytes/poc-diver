@@ -1,5 +1,6 @@
 resource "aws_s3_bucket" "s3_input" {
-  bucket = "poc-diver-input"
+  bucket        = "poc-diver-input"
+  force_destroy = true
 }
 
 resource "aws_s3_bucket_acl" "s3_input_acl" {
@@ -20,7 +21,8 @@ resource "aws_s3_bucket_notification" "s3_file_created" {
 }
 
 resource "aws_s3_bucket" "s3_output" {
-  bucket = "poc-diver-output"
+  bucket        = "poc-diver-output"
+  force_destroy = true
 }
 
 resource "aws_s3_bucket_acl" "s3_output_acl" {
