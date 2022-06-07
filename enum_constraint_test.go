@@ -3,7 +3,7 @@ package main
 import "testing"
 
 func TestEnumStringConstraint(t *testing.T) {
-	type EnumTest[T Numeric | Textual] struct {
+	type EnumTest[T DataTypes] struct {
 		v   string
 		c   *EnumConstraint[T]
 		exp string
@@ -13,19 +13,19 @@ func TestEnumStringConstraint(t *testing.T) {
 	tests := []EnumTest[string]{
 		{
 			v:   "Y",
-			c:   NewEnumConstraint[string]([]string{"Y","N"}, "N"),
+			c:   NewEnumConstraint[string]([]string{"Y", "N"}, "N"),
 			exp: "Y",
 			err: nil,
 		},
 		{
 			v:   "X",
-			c:   NewEnumConstraint[string]([]string{"Y","N"}, "N"),
+			c:   NewEnumConstraint[string]([]string{"Y", "N"}, "N"),
 			exp: "X",
 			err: ErrInvalidEnumValue,
 		},
 		{
 			v:   "",
-			c:   NewEnumConstraint[string]([]string{"Y","N"}, "N"),
+			c:   NewEnumConstraint[string]([]string{"Y", "N"}, "N"),
 			exp: "N",
 			err: nil,
 		},
@@ -43,7 +43,7 @@ func TestEnumStringConstraint(t *testing.T) {
 }
 
 func TestEnumIntConstraint(t *testing.T) {
-	type EnumTest[T Numeric | Textual] struct {
+	type EnumTest[T DataTypes] struct {
 		v   string
 		c   *EnumConstraint[T]
 		exp string
