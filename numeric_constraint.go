@@ -6,23 +6,23 @@ import (
 )
 
 type NumericConstraint[T Numeric] struct {
-	MinValue T
-	MaxValue T
-	Default  T
+	minValue     T
+	maxValue     T
+	defaultValue T
 }
 
 func NewNumericConstraint[T Numeric](minValue, maxValue, defaultValue T) *NumericConstraint[T] {
 	return &NumericConstraint[T]{
-		MinValue: minValue,
-		MaxValue: maxValue,
-		Default:  defaultValue,
+		minValue:     minValue,
+		maxValue:     maxValue,
+		defaultValue: defaultValue,
 	}
 }
 
 func (c *NumericConstraint[T]) Run(v string) (string, error) {
 	var numericValue T
 	if v == "" {
-		switch t := any(c.Default).(type) {
+		switch t := any(c.defaultValue).(type) {
 		case int, int8, int16, int32, int64:
 			return fmt.Sprintf("%d", t), nil
 		case uint, uint8, uint16, uint32, uint64, uintptr:
@@ -54,7 +54,7 @@ func (c *NumericConstraint[T]) Run(v string) (string, error) {
 		return v, err
 	}
 
-	if numericValue < c.MinValue || c.MaxValue < numericValue {
+	if numericValue < c.minValue || c.maxValue < numericValue {
 		return v, ErrValueOutOfRange
 	}
 

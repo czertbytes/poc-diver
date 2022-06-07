@@ -5,20 +5,20 @@ import (
 )
 
 type EnumConstraint[T DataTypes] struct {
-	Values  []T
-	Default T
+	values       []T
+	defaultValue T
 }
 
 func NewEnumConstraint[T DataTypes](values []T, defaultValue T) *EnumConstraint[T] {
 	return &EnumConstraint[T]{
-		Values:  values,
-		Default: defaultValue,
+		values:       values,
+		defaultValue: defaultValue,
 	}
 }
 
 func (c *EnumConstraint[T]) Run(v string) (string, error) {
 	if v == "" {
-		switch t := any(c.Default).(type) {
+		switch t := any(c.defaultValue).(type) {
 		case int, int8, int16, int32, int64:
 			return fmt.Sprintf("%d", t), nil
 		case uint, uint8, uint16, uint32, uint64, uintptr:
@@ -31,7 +31,7 @@ func (c *EnumConstraint[T]) Run(v string) (string, error) {
 	}
 
 	var s string
-	for _, e := range c.Values {
+	for _, e := range c.values {
 		switch t := any(e).(type) {
 		case int, int8, int16, int32, int64:
 			s = fmt.Sprintf("%d", t)

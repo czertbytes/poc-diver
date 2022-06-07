@@ -1,26 +1,26 @@
 package main
 
 type TextualConstraint struct {
-	MinLength uint
-	MaxLength uint
-	Default   string
+	minLength    uint
+	maxLength    uint
+	defaultValue string
 }
 
 func NewTextualConstraint(minLength, maxLength uint, defaultValue string) *TextualConstraint {
 	return &TextualConstraint{
-		MinLength: minLength,
-		MaxLength: maxLength,
-		Default:   defaultValue,
+		minLength:    minLength,
+		maxLength:    maxLength,
+		defaultValue: defaultValue,
 	}
 }
 
 func (c *TextualConstraint) Run(v string) (string, error) {
 	if v == "" {
-		return c.Default, nil
+		return c.defaultValue, nil
 	}
 
 	l := len(v)
-	if l < int(c.MinLength) || int(c.MaxLength) < l {
+	if l < int(c.minLength) || int(c.maxLength) < l {
 		return v, ErrValueOutOfRange
 	}
 

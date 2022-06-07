@@ -3,23 +3,23 @@ package main
 import "regexp"
 
 type RegexpConstraint struct {
-	Re      *regexp.Regexp
-	Default string
+	re           *regexp.Regexp
+	defaultValue string
 }
 
 func NewRegexpConstraint(re string, defaultValue string) *RegexpConstraint {
 	return &RegexpConstraint{
-		Re:      regexp.MustCompile(re),
-		Default: defaultValue,
+		re:           regexp.MustCompile(re),
+		defaultValue: defaultValue,
 	}
 }
 
 func (c *RegexpConstraint) Run(v string) (string, error) {
 	if v == "" {
-		return c.Default, nil
+		return c.defaultValue, nil
 	}
 
-	if !c.Re.MatchString(v) {
+	if !c.re.MatchString(v) {
 		return v, ErrValueNotMatchingRegExp
 	}
 
