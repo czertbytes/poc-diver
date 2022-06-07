@@ -7,6 +7,7 @@ import (
 
 var ErrValueOutOfRange error = errors.New("constraint: value out of allowed range")
 var ErrInvalidEnumValue error = errors.New("constraint: invalid enum value")
+var ErrValueNotMatchingRegExp error = errors.New("constraint: value is not matching regexp")
 
 type DataTypes interface {
 	Numeric | Textual
