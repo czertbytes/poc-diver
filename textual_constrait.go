@@ -14,7 +14,7 @@ func NewTextualConstraint(minLength, maxLength uint, defaultValue string) *Textu
 	}
 }
 
-func (c *TextualConstraint) Run(v string) (interface{}, error) {
+func (c *TextualConstraint) Run(v string) (string, error) {
 	if v == "" {
 		return c.Default, nil
 	}
