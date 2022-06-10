@@ -30,6 +30,7 @@ func WithConstraint(column string, dc DataConstraintRunner) func(*Diver) {
 func (d *Diver) Run(data io.Reader, output io.Writer) error {
 	// TODO: validate input data
 	r := csv.NewReader(data)
+	r.ReuseRecord = true
 	w := csv.NewWriter(output)
 	w.UseCRLF = false
 
@@ -51,10 +52,13 @@ func (d *Diver) Run(data io.Reader, output io.Writer) error {
 	}
 	w.Write(headers)
 
-	var line int64
+	var (
+		line   int64
+		record []string
+	)
 	row := make([]string, len(headers))
 	for {
-		record, err := r.Read()
+		record, err = r.Read()
 		if err == io.EOF {
 			break
 		}
@@ -66,7 +70,7 @@ func (d *Diver) Run(data io.Reader, output io.Writer) error {
 		for i, v := range record {
 			row[i], err = constraints[i].Run(v)
 			if err != nil {
-				fmt.Printf("diver: validating line %d column %d failed: %s", line, i, err)
+				fmt.Printf("diver: validating line %d column %d value '%s' failed: %s", line, i, v, err)
 				return err
 			}
 		}

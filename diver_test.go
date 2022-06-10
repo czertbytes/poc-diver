@@ -1,11 +1,13 @@
 package main
 
 import (
-	"bytes"
+	"bufio"
+	"crypto/md5"
+	"fmt"
 	"io"
 	"io/ioutil"
+	"log"
 	"os"
-	"reflect"
 	"strings"
 	"testing"
 )
@@ -55,13 +57,13 @@ func TestDiverSmallFile(t *testing.T) {
 		WithConstraint("DATA_TYPE_BOP", NewNumericConstraint[int8](0, 5, 2)),
 	)
 
-	input, err := os.Open("test_data/test.csv")
+	input, err := os.Open("test_data/l50k.csv")
 	if err != nil {
 		t.Fatalf("cannot open test file: %s", err)
 	}
 	defer input.Close()
 
-	exp, err := ioutil.ReadFile("test_data/test.csv")
+	exp, err := ioutil.ReadFile("test_data/l50k.csv")
 	if err != nil {
 		t.Fatalf("cannot open test file: %s", err)
 	}
@@ -80,27 +82,55 @@ func TestDiverSmallFile(t *testing.T) {
 
 func TestDiverLargeFile(t *testing.T) {
 	d := NewDiver(
-		WithConstraint("CB_REP_SECTOR", NewNumericConstraint[int8](1, 100, 1)),
+		WithConstraint("UNIT_MULT", NewNumericConstraint[int8](0, 100, 1)),
+		//WithConstraint("OBS_VALUE", NewNumericConstraint[float64](-math.MaxFloat64, math.MaxFloat64, 0)),
+		WithConstraint("ACCOUNTING_ENTRY", NewEnumConstraint([]string{"A", "B", "C", "D", "FI", "FO", "L", "N", "NI", "NE", "NO"}, "A")),
 	)
 
-	input, err := os.Open("test_data/test_large.csv")
+	input, err := os.Open("test_data/l4m.csv")
 	if err != nil {
 		t.Fatalf("cannot open test file: %s", err)
 	}
 	defer input.Close()
 
-	exp, err := ioutil.ReadFile("test_data/test_large.csv")
+	test_result, err := os.Create("test_data/l4m_test_result.csv")
 	if err != nil {
-		t.Fatalf("cannot open test file: %s", err)
+		t.Fatalf("storing test result failed %s", err)
 	}
 
-	var res bytes.Buffer
-	err = d.Run(input, &res)
+	bufSize := 64 * 1024 * 1024
+	err = d.Run(bufio.NewReaderSize(input, bufSize), bufio.NewWriterSize(test_result, bufSize))
 	if err != nil {
 		t.Fatalf("expected no err got %s", err)
 	}
+	test_result.Sync()
+	test_result.Close()
 
-	if !reflect.DeepEqual(res.Bytes(), exp) {
-		t.Fatalf("it's different")
+	if !hasSameContent("test_data/l4m.csv", "test_data/l4m_test_result.csv") {
+		t.Fatalf("exp and res files are different")
 	}
+}
+
+func hasSameContent(p1, p2 string) bool {
+	hashes := make([]string, 2)
+	for i, p := range []string{p1, p2} {
+		f, err := os.Open(p)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer f.Close()
+
+		hashes[i] = md5hash(f)
+	}
+
+	return hashes[0] == hashes[1]
+}
+
+func md5hash(r io.Reader) string {
+	h := md5.New()
+	if _, err := io.Copy(h, r); err != nil {
+		log.Fatal(err)
+	}
+
+	return fmt.Sprintf("%x", h.Sum(nil))
 }

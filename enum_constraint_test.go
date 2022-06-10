@@ -13,19 +13,19 @@ func TestEnumStringConstraint(t *testing.T) {
 	tests := []EnumTest[string]{
 		{
 			v:   "Y",
-			c:   NewEnumConstraint[string]([]string{"Y", "N"}, "N"),
+			c:   NewEnumConstraint([]string{"Y", "N"}, "N"),
 			exp: "Y",
 			err: nil,
 		},
 		{
 			v:   "X",
-			c:   NewEnumConstraint[string]([]string{"Y", "N"}, "N"),
+			c:   NewEnumConstraint([]string{"Y", "N"}, "N"),
 			exp: "X",
 			err: ErrInvalidEnumValue,
 		},
 		{
 			v:   "",
-			c:   NewEnumConstraint[string]([]string{"Y", "N"}, "N"),
+			c:   NewEnumConstraint([]string{"Y", "N"}, "N"),
 			exp: "N",
 			err: nil,
 		},
@@ -53,19 +53,19 @@ func TestEnumIntConstraint(t *testing.T) {
 	tests := []EnumTest[int8]{
 		{
 			v:   "1",
-			c:   NewEnumConstraint[int8]([]int8{1, 2, 3}, 2),
+			c:   NewEnumConstraint([]int8{1, 2, 3}, 2),
 			exp: "1",
 			err: nil,
 		},
 		{
 			v:   "5",
-			c:   NewEnumConstraint[int8]([]int8{1, 2, 3}, 2),
+			c:   NewEnumConstraint([]int8{1, 2, 3}, 2),
 			exp: "5",
 			err: ErrInvalidEnumValue,
 		},
 		{
 			v:   "",
-			c:   NewEnumConstraint[int8]([]int8{1, 2, 3}, 2),
+			c:   NewEnumConstraint([]int8{1, 2, 3}, 2),
 			exp: "2",
 			err: nil,
 		},

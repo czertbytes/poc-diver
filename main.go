@@ -3,7 +3,6 @@ package main
 import (
 	"bytes"
 	"context"
-	"fmt"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
@@ -15,7 +14,10 @@ import (
 const OutputBucket = "poc-diver-output"
 
 func HandleRequest(ctx context.Context, s3Events events.S3Event) (string, error) {
-	s := session.New()
+	s, err := session.NewSession()
+	if err != nil {
+		return `{"result":"creating aws session failed"}`, err
+	}
 
 	for _, record := range s3Events.Records {
 		bucket := record.S3.Bucket.Name
@@ -26,7 +28,7 @@ func HandleRequest(ctx context.Context, s3Events events.S3Event) (string, error)
 			Key:    aws.String(key),
 		})
 		if err != nil {
-			return fmt.Sprintf(`{"result":"reading input file failed"}`), err
+			return `{"result":"reading input file failed"}`, err
 		}
 		defer input.Body.Close()
 
@@ -36,19 +38,21 @@ func HandleRequest(ctx context.Context, s3Events events.S3Event) (string, error)
 
 		var output bytes.Buffer
 		if err := diver.Run(input.Body, &output); err != nil {
-			return fmt.Sprintf(`{"result":"running diver failed"}`), err
+			return `{"result":"running diver failed"}`, err
 		}
 
-		_, err = s3.New(s).PutObject(&s3.PutObjectInput{
+		if _, err = s3.New(s).PutObject(&s3.PutObjectInput{
 			Bucket:      aws.String(OutputBucket),
 			Key:         aws.String(key),
 			ACL:         aws.String("private"),
 			Body:        bytes.NewReader(output.Bytes()),
 			ContentType: aws.String("text/csv"),
-		})
+		}); err != nil {
+			return `{"result":"storing output file failed"}`, err
+		}
 	}
 
-	return fmt.Sprintf(`{"result":"done"}`), nil
+	return `{"result":"done"}`, nil
 }
 
 func main() {
